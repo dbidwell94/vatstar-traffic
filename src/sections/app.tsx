@@ -70,11 +70,11 @@ interface IPilot {
 export default function App() {
   const [pilots, setPilots] = useState<IPilot[]>([]);
 
-  const [showVatstar, setShowVatstar] = useState(false);
+  const [showAllPilots, setShowAllPilots] = useState(true);
 
   useEffect(() => {
     const pilotEventStream = new EventSource(
-      `https://vatstar-vatsim-proxy.herokuapp.com/pilots${showVatstar ? '?vatstar=true' : ''}`
+      `https://vatstar-vatsim-proxy.herokuapp.com/pilots${showAllPilots ? '' : '?vatstar=true'}`
     );
 
     function messageEventReceived(evt: MessageEvent<any>) {
@@ -89,7 +89,7 @@ export default function App() {
       pilotEventStream.removeEventListener('message', messageEventReceived);
       pilotEventStream.close();
     };
-  }, [showVatstar]);
+  }, [showAllPilots]);
 
   return (
     <AppContainer>
@@ -103,8 +103,8 @@ export default function App() {
           />
           <ToggleButton
             className='toggle-button'
-            labelText='Show VATSTAR pilots'
-            onChange={(show) => setShowVatstar(show)}
+            labelText='Show all pilots'
+            onChange={(show) => setShowAllPilots(show)}
           />
 
           {pilots &&
