@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
-import App from '@sections/app';
+import App from 'src/sections/app';
 import { theme } from './theme';
 
 const GlobalStyle = createGlobalStyle`
