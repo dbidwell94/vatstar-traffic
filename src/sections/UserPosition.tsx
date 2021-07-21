@@ -3,21 +3,30 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useMap, SVGOverlay } from 'react-leaflet';
 import styled from 'styled-components';
 import CessnaSvg from 'src/components/CessnaSvg';
+import interpolate from 'color-interpolate';
 
 interface INavMapProps {
   currentPos?: LatLngExpression;
   heading: number;
+  altitude: number;
 }
 
 const ImageContainer = styled.div`
   transform: rotate(50deg);
-  background: red;
 `;
 
+function clamp01(num: number): number {
+  return num < 0 ? 0 : num > 1 ? 1 : num;
+}
+
 export default function NavMap(props: INavMapProps) {
-  const { currentPos, heading } = props;
+  const { currentPos, heading, altitude } = props;
 
   const map = useMap();
+
+  const colorMap = useMemo(() => {
+    return interpolate(['#FF9E00', '#FBFF00', '#19AD0A', '#0D3CDC', '#B00DDC']);
+  }, []);
 
   const [currentZoom, setCurrentZoom] = useState(map.getZoom());
 
@@ -58,7 +67,7 @@ export default function NavMap(props: INavMapProps) {
     <ImageContainer>
       {currentPos && planeBounds && (
         <SVGOverlay bounds={planeBounds}>
-          <CessnaSvg rotation={heading} />
+          <CessnaSvg rotation={heading} fillColor={colorMap(clamp01(altitude / 40000))} />
         </SVGOverlay>
       )}
     </ImageContainer>

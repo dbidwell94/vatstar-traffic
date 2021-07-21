@@ -73,7 +73,9 @@ export default function App() {
   const [showVatstar, setShowVatstar] = useState(false);
 
   useEffect(() => {
-    const pilotEventStream = new EventSource(`https://vatstar-vatsim-proxy.herokuapp.com/pilots${showVatstar ? '?vatstar=true' : ''}`);
+    const pilotEventStream = new EventSource(
+      `https://vatstar-vatsim-proxy.herokuapp.com/pilots${showVatstar ? '?vatstar=true' : ''}`
+    );
 
     function messageEventReceived(evt: MessageEvent<any>) {
       const parsedPilots = JSON.parse(evt.data) as IPilot[];
@@ -112,6 +114,7 @@ export default function App() {
                   key={pilot.cid}
                   currentPos={{ lat: pilot.latitude, lng: pilot.longitude }}
                   heading={pilot.heading}
+                  altitude={pilot.altitude}
                 />
               );
             })}
