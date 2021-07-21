@@ -103,7 +103,7 @@ export default function App() {
           />
           <ToggleButton
             className='toggle-button'
-            labelText='Show all pilots'
+            labelText='Show all VATSIM pilots'
             onChange={(show) => setShowAllPilots(show)}
           />
 
