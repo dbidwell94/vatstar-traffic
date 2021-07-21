@@ -8,6 +8,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 export default function (): Configuration {
   return {
     mode: isProduction ? 'production' : 'development',
+    entry: path.join(__dirname, 'src/index.tsx'),
     module: {
       rules: [
         {
@@ -22,6 +23,10 @@ export default function (): Configuration {
         {
           test: /\.(svg|png|jpe?g|gif)$/,
           use: 'url-loader',
+        },
+        {
+          test: /\.(css|less)$/,
+          use: ['style-loader', 'css-loader'],
         },
       ],
     },
@@ -42,7 +47,7 @@ export default function (): Configuration {
       path: path.join(__dirname, 'dist'),
       filename: isProduction ? '[chunkhash].bundle.js' : '[name].js',
     },
-    
+
     devServer: {
       hot: true,
       open: true,
