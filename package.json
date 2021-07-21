@@ -2,6 +2,7 @@
   "name": "vatstar-traffic",
   "version": "1.0.0",
   "description": "Gets the current VATSIM/VATSTAR traffic and displays it on a map",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "webpack serve",
