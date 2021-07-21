@@ -13,17 +13,20 @@ export default function (): Configuration {
         {
           test: /\.(jsx?|tsx?)$/,
           use: {
-            loader: 'ts-loader',
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
+            },
           },
         },
         {
           test: /\.(svg|png|jpe?g|gif)$/,
-          use: "url-loader"
-        }
+          use: 'url-loader',
+        },
       ],
     },
     resolve: {
-      extensions: ['.js', '.ts', '.tsx', '.jsx'],
+      extensions: ['.ts', '.tsx', '.js', '.jsx'],
       plugins: [
         new pathsPlugin({
           configFile: path.join(__dirname, 'tsconfig.json'),
@@ -35,6 +38,11 @@ export default function (): Configuration {
         template: path.join(__dirname, 'public', 'index.html'),
       }),
     ],
+    output: {
+      path: path.join(__dirname, 'dist'),
+      filename: isProduction ? '[chunkhash].bundle.js' : '[name].js',
+    },
+    
     devServer: {
       hot: true,
       open: true,
