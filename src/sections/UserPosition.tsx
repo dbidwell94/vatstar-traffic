@@ -1,26 +1,59 @@
-import { LatLngExpression, latLngBounds, LatLngBoundsExpression, point } from 'leaflet';
+import { LatLngExpression, latLngBounds, point, LeafletEvent, LatLng, LatLngBounds } from 'leaflet';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useMap, SVGOverlay } from 'react-leaflet';
+import { useMap, SVGOverlay, CircleMarker, Popup, Marker, LayerGroup } from 'react-leaflet';
 import styled from 'styled-components';
 import CessnaSvg from 'src/components/CessnaSvg';
 import interpolate from 'color-interpolate';
+import { IPilot } from './app';
 
 interface INavMapProps {
   currentPos?: LatLngExpression;
-  heading: number;
-  altitude: number;
+  pilot: IPilot;
 }
 
-const ImageContainer = styled.div`
-  transform: rotate(50deg);
+const ImageContainer = styled.div``;
+
+const PopupContainer = styled(Popup)`
+  padding: 0;
+  margin: 0;
+
+  div {
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+    grid-gap: .5rem;
+    .key,
+    .value {
+      p {
+        font-size: 1.375rem;
+        margin: 0;
+        padding: 0;
+      }
+    }
+    .key {
+      text-transform: uppercase;
+      grid-column: 1 / 2;
+    }
+    .value {
+      grid-column: 2 / 3;
+    }
+  }
 `;
 
 function clamp01(num: number): number {
   return num < 0 ? 0 : num > 1 ? 1 : num;
 }
 
+function checkClickPos(planeBounds: LatLngBounds, clickPos: LatLng): boolean {
+  if (clickPos.lat <= planeBounds.getNorth() && clickPos.lat > planeBounds.getSouth()) {
+    if (clickPos.lng <= planeBounds.getEast() && clickPos.lng > planeBounds.getWest()) return true;
+  }
+  return false;
+}
+
 export default function NavMap(props: INavMapProps) {
-  const { currentPos, heading, altitude } = props;
+  const { currentPos, pilot } = props;
 
   const map = useMap();
 
@@ -30,7 +63,9 @@ export default function NavMap(props: INavMapProps) {
 
   const [currentZoom, setCurrentZoom] = useState(map.getZoom());
 
-  function getPlaneBounds(): LatLngBoundsExpression | undefined {
+  const [selected, setSelected] = useState(false);
+
+  function getPlaneBounds(): LatLngBounds | undefined {
     if (!currentPos) {
       return undefined;
     }
@@ -47,28 +82,70 @@ export default function NavMap(props: INavMapProps) {
     return bounds;
   }
 
+  const planeBounds = useMemo<LatLngBounds | undefined>(() => {
+    return getPlaneBounds();
+  }, [currentPos, currentZoom, pilot.heading]);
+
   useEffect(() => {
     function setZoom() {
       setCurrentZoom(map.getZoom());
     }
 
+    function clickListener(evt: CustomEvent<LeafletEvent>) {
+      if (!planeBounds) return;
+      const latLng = (evt.detail as any).latlng as LatLng;
+      if (checkClickPos(planeBounds, latLng)) {
+        setSelected(true);
+        return;
+      }
+      setSelected(false);
+    }
+
     map.addEventListener('zoomend', setZoom);
+
+    window.addEventListener('map_clicked', clickListener as EventListener);
 
     return () => {
       map.removeEventListener('zoomend', setZoom);
+      window.removeEventListener('map_clicked', clickListener as EventListener);
     };
   });
-
-  const planeBounds = useMemo<LatLngBoundsExpression | undefined>(() => {
-    return getPlaneBounds();
-  }, [currentPos, currentZoom, heading]);
 
   return (
     <ImageContainer>
       {currentPos && planeBounds && (
-        <SVGOverlay bounds={planeBounds}>
-          <CessnaSvg rotation={heading} fillColor={colorMap(clamp01(altitude / 40000))} />
-        </SVGOverlay>
+        <>
+          <SVGOverlay bounds={planeBounds}>
+            <CessnaSvg
+              rotation={pilot.heading}
+              fillColor={colorMap(clamp01(pilot.altitude / 40000))}
+              strokeColor='black'
+            />
+          </SVGOverlay>
+          {selected && <CircleMarker center={currentPos} radius={30} />}
+          {selected && (
+            <Marker position={currentPos}>
+              <PopupContainer>
+                <div>
+                  <div className='key'>
+                    <p>Callsign: </p>
+                  </div>
+                  <div className='value'>
+                    <p>{pilot.callsign}</p>
+                  </div>
+                  <div className='key'>
+                    <p>Altitude: </p>
+                  </div>
+                  <div className='value'>
+                    <p>{pilot.altitude}</p>
+                  </div>
+                  <div className='key'>Destination: </div>
+                  <div className='value'>{pilot.flight_plan.arrival}</div>
+                </div>
+              </PopupContainer>
+            </Marker>
+          )}
+        </>
       )}
     </ImageContainer>
   );

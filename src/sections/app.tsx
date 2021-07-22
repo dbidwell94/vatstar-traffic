@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { MapContainer as LeafletContainer, TileLayer } from 'react-leaflet';
 import UserPosition from './UserPosition';
 import ToggleButton from 'src/components/ToggleButton';
+import MapEventHandler from 'src/components/MapEventHandler';
+import { LeafletEvent } from 'leaflet';
 
 const AppContainer = styled.div`
   width: 100vw;
@@ -28,7 +30,7 @@ const MapContainer = styled(LeafletContainer)`
   }
 `;
 
-interface IFlightPlan {
+export interface IFlightPlan {
   aircraft: string;
   aircraft_faa: string;
   aircraft_short: string;
@@ -46,7 +48,7 @@ interface IFlightPlan {
   route: string;
 }
 
-interface IPilot {
+export interface IPilot {
   altitude: number;
   callsign: string;
   cid: number;
@@ -99,7 +101,7 @@ export default function App() {
         <MapContainer zoom={2} center={{ lat: 0, lng: 0 }}>
           <TileLayer
             url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> VATSTAR'
           />
           <ToggleButton
             className='toggle-button'
@@ -107,14 +109,15 @@ export default function App() {
             onChange={(show) => setShowAllPilots(show)}
           />
 
+          <MapEventHandler />
+
           {pilots &&
             pilots.map((pilot) => {
               return (
                 <UserPosition
                   key={pilot.cid}
                   currentPos={{ lat: pilot.latitude, lng: pilot.longitude }}
-                  heading={pilot.heading}
-                  altitude={pilot.altitude}
+                  pilot={pilot}
                 />
               );
             })}
