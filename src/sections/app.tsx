@@ -73,7 +73,7 @@ export interface IPilot {
 export default function App() {
   const [pilots, setPilots] = useState<IPilot[]>([]);
 
-  const [showAllPilots, setShowAllPilots] = useState(true);
+  const [showAllPilots, setShowAllPilots] = useState(false);
 
   const [selectedPilot, setSelectedPilot] = useState<IPilot | null>(null);
 
