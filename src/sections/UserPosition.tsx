@@ -139,9 +139,11 @@ export default function NavMap(props: INavMapProps) {
                   <div className='key'>
                     <p>Destination:</p>
                   </div>
-                  <div className='value'>
-                    <p>{pilot.flight_plan.arrival}</p>
-                  </div>
+                  {pilot.flight_plan && (
+                    <div className='value'>
+                      <p>{pilot.flight_plan.arrival}</p>
+                    </div>
+                  )}
                 </div>
               </PopupContainer>
             </Marker>
