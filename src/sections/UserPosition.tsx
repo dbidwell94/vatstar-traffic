@@ -24,7 +24,8 @@ const PopupContainer = styled(Popup)`
     grid-template-rows: auto;
     grid-gap: 0.5rem;
     .key,
-    .value {
+    .value,
+    .title {
       p {
         font-size: 1.375rem;
         margin: 0;
@@ -37,6 +38,17 @@ const PopupContainer = styled(Popup)`
     }
     .value {
       grid-column: 2 / 3;
+    }
+    .title {
+      grid-column: 1 / 3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      hr {
+        width: 100%;
+      }
     }
   }
 `;
@@ -51,6 +63,14 @@ function checkClickPos(planeBounds: LatLngBounds, clickPos: LatLng): boolean {
   }
   return false;
 }
+
+const pilotRatingMap = {
+  0: 'P0',
+  1: 'P1',
+  3: 'P2',
+  7: 'P3',
+  15: 'P4',
+};
 
 export default function NavMap(props: INavMapProps) {
   const { currentPos, pilot, setSelectedPilot, selectedPilot } = props;
@@ -124,6 +144,14 @@ export default function NavMap(props: INavMapProps) {
             <Marker position={currentPos}>
               <PopupContainer>
                 <div>
+                  <div className='title'>
+                    <p>
+                      {pilot.name} -{' '}
+                      {pilotRatingMap[pilot.pilot_rating.toString() as unknown as keyof typeof pilotRatingMap] ||
+                        pilot.pilot_rating}
+                    </p>
+                    <hr />
+                  </div>
                   <div className='key'>
                     <p>Callsign: </p>
                   </div>
