@@ -77,10 +77,6 @@ export default function App() {
 
   const [selectedPilot, setSelectedPilot] = useState<IPilot | null>(null);
 
-  const isInIFrame = useMemo(() => {
-    return window.location !== window.parent.location;
-  }, []);
-
   useEffect(() => {
     const pilotEventStream = new EventSource(`${SERVER_URL}/pilots${showAllPilots ? '' : '?vatstar=true'}`);
 
@@ -109,14 +105,11 @@ export default function App() {
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> VATSTAR'
           />
 
-          {/** Only display if being displayed NOT in an iframe */}
-          {!isInIFrame && (
-            <ToggleButton
-              className='toggle-button'
-              labelText='Show all VATSIM pilots'
-              onChange={(show) => setShowAllPilots(show)}
-            />
-          )}
+          <ToggleButton
+            className='toggle-button'
+            labelText='Show all VATSIM pilots'
+            onChange={(show) => setShowAllPilots(show)}
+          />
 
           <MapEventHandler />
 
