@@ -5,7 +5,8 @@ import { MapContainer as LeafletContainer, TileLayer } from 'react-leaflet';
 import UserPosition from './UserPosition';
 import ToggleButton from 'src/components/ToggleButton';
 import MapEventHandler from 'src/components/MapEventHandler';
-import { LeafletEvent } from 'leaflet';
+import PilotDestinationMarker from './PilotDestinationMarker';
+import { SERVER_URL } from 'src';
 
 const AppContainer = styled.div`
   width: 100vw;
@@ -74,10 +75,10 @@ export default function App() {
 
   const [showAllPilots, setShowAllPilots] = useState(true);
 
+  const [selectedPilot, setSelectedPilot] = useState<IPilot | null>(null);
+
   useEffect(() => {
-    const pilotEventStream = new EventSource(
-      `https://vatstar-vatsim-proxy.herokuapp.com/pilots${showAllPilots ? '' : '?vatstar=true'}`
-    );
+    const pilotEventStream = new EventSource(`${SERVER_URL}/pilots${showAllPilots ? '' : '?vatstar=true'}`);
 
     function messageEventReceived(evt: MessageEvent<any>) {
       const parsedPilots = JSON.parse(evt.data) as IPilot[];
@@ -118,9 +119,12 @@ export default function App() {
                   key={pilot.cid}
                   currentPos={{ lat: pilot.latitude, lng: pilot.longitude }}
                   pilot={pilot}
+                  setSelectedPilot={setSelectedPilot}
+                  selectedPilot={selectedPilot}
                 />
               );
             })}
+          {selectedPilot && <PilotDestinationMarker pilot={selectedPilot} />}
         </MapContainer>
       </div>
     </AppContainer>

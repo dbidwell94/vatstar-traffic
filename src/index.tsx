@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import App from 'src/sections/app';
 import { theme } from './theme';
+import 'babel-polyfill';
 
 const GlobalStyle = createGlobalStyle`
     html {
@@ -36,6 +37,8 @@ const GlobalStyle = createGlobalStyle`
         font-size: 1.75rem;
     }
 `;
+
+export const SERVER_URL = localStorage.getItem("server_url") || "https://vatstar-vatsim-proxy.herokuapp.com";
 
 ReactDOM.render(
   <ThemeProvider theme={theme}>

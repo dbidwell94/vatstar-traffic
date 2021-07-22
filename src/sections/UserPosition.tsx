@@ -9,9 +9,9 @@ import { IPilot } from './app';
 interface INavMapProps {
   currentPos?: LatLngExpression;
   pilot: IPilot;
+  setSelectedPilot: React.Dispatch<React.SetStateAction<IPilot | null>>;
+  selectedPilot: IPilot | null;
 }
-
-const ImageContainer = styled.div``;
 
 const PopupContainer = styled(Popup)`
   padding: 0;
@@ -22,7 +22,7 @@ const PopupContainer = styled(Popup)`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
-    grid-gap: .5rem;
+    grid-gap: 0.5rem;
     .key,
     .value {
       p {
@@ -53,7 +53,7 @@ function checkClickPos(planeBounds: LatLngBounds, clickPos: LatLng): boolean {
 }
 
 export default function NavMap(props: INavMapProps) {
-  const { currentPos, pilot } = props;
+  const { currentPos, pilot, setSelectedPilot, selectedPilot } = props;
 
   const map = useMap();
 
@@ -62,8 +62,6 @@ export default function NavMap(props: INavMapProps) {
   }, []);
 
   const [currentZoom, setCurrentZoom] = useState(map.getZoom());
-
-  const [selected, setSelected] = useState(false);
 
   function getPlaneBounds(): LatLngBounds | undefined {
     if (!currentPos) {
@@ -95,10 +93,9 @@ export default function NavMap(props: INavMapProps) {
       if (!planeBounds) return;
       const latLng = (evt.detail as any).latlng as LatLng;
       if (checkClickPos(planeBounds, latLng)) {
-        setSelected(true);
+        setSelectedPilot(pilot);
         return;
       }
-      setSelected(false);
     }
 
     map.addEventListener('zoomend', setZoom);
@@ -112,7 +109,7 @@ export default function NavMap(props: INavMapProps) {
   });
 
   return (
-    <ImageContainer>
+    <section>
       {currentPos && planeBounds && (
         <>
           <SVGOverlay bounds={planeBounds}>
@@ -122,8 +119,8 @@ export default function NavMap(props: INavMapProps) {
               strokeColor='black'
             />
           </SVGOverlay>
-          {selected && <CircleMarker center={currentPos} radius={30} />}
-          {selected && (
+          {selectedPilot?.cid === pilot.cid && <CircleMarker center={currentPos} radius={30} />}
+          {selectedPilot?.cid === pilot.cid && (
             <Marker position={currentPos}>
               <PopupContainer>
                 <div>
@@ -139,14 +136,18 @@ export default function NavMap(props: INavMapProps) {
                   <div className='value'>
                     <p>{pilot.altitude}</p>
                   </div>
-                  <div className='key'>Destination: </div>
-                  <div className='value'>{pilot.flight_plan.arrival}</div>
+                  <div className='key'>
+                    <p>Destination:</p>
+                  </div>
+                  <div className='value'>
+                    <p>{pilot.flight_plan.arrival}</p>
+                  </div>
                 </div>
               </PopupContainer>
             </Marker>
           )}
         </>
       )}
-    </ImageContainer>
+    </section>
   );
 }
