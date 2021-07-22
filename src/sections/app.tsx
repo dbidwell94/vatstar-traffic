@@ -7,6 +7,7 @@ import ToggleButton from 'src/components/ToggleButton';
 import MapEventHandler from 'src/components/MapEventHandler';
 import PilotDestinationMarker from './PilotDestinationMarker';
 import { SERVER_URL } from 'src';
+import ColorKey from 'src/components/ColorKey';
 
 const AppContainer = styled.div`
   width: 100vw;
@@ -16,7 +17,7 @@ const AppContainer = styled.div`
   flex-direction: column;
 `;
 
-const MapContainer = styled(LeafletContainer)`
+const MapContainer = styled(LeafletContainer)<{ colorSections: number; colors: string[] }>`
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -28,6 +29,26 @@ const MapContainer = styled(LeafletContainer)`
     left: 50%;
     transform: translate(-50%, 10%);
     z-index: 999999 !important;
+  }
+  .color-key {
+    position: absolute;
+    z-index: 500 !important;
+    display: grid;
+
+    bottom: 0%;
+    left: 50%;
+    transform: translate(-50%, -150%);
+    color: white;
+    width: 75vw;
+    height: auto;
+    background-image: linear-gradient(to right ${({ colors }) => colors.map((color) => `, ${color}`)});
+    grid-template-columns: repeat(${({ colorSections }) => colorSections}, 1fr);
+    section.altitude-section {
+      position: relative;
+      p {
+        transform: translate(50%, -100%);
+      }
+    }
   }
 `;
 
@@ -70,6 +91,8 @@ export interface IPilot {
   flight_plan: IFlightPlan;
 }
 
+const mapColors = ['#FF9E00', '#FBFF00', '#19AD0A', '#0D3CDC', '#B00DDC'];
+
 export default function App() {
   const [pilots, setPilots] = useState<IPilot[]>([]);
 
@@ -99,7 +122,7 @@ export default function App() {
       <div id='map__container'>
         <link rel='stylesheet' href='https://unpkg.com/leaflet@1.7.1/dist/leaflet.css' />
         <script src='https://unpkg.com/leaflet@1.7.1/dist/leaflet.js' />
-        <MapContainer zoom={2} center={{ lat: 0, lng: 0 }}>
+        <MapContainer zoom={2} center={{ lat: 0, lng: 0 }} colorSections={mapColors.length} colors={mapColors}>
           <TileLayer
             url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> VATSTAR'
@@ -111,12 +134,15 @@ export default function App() {
             onChange={(show) => setShowAllPilots(show)}
           />
 
+          <ColorKey colors={mapColors} altitudeMax={40000} altitudeMin={0} className='color-key' />
+
           <MapEventHandler />
 
           {pilots &&
             pilots.map((pilot) => {
               return (
                 <UserPosition
+                  mapColors={mapColors}
                   key={pilot.cid}
                   currentPos={{ lat: pilot.latitude, lng: pilot.longitude }}
                   pilot={pilot}

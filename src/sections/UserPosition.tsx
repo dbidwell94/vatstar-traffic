@@ -11,6 +11,7 @@ interface INavMapProps {
   pilot: IPilot;
   setSelectedPilot: React.Dispatch<React.SetStateAction<IPilot | null>>;
   selectedPilot: IPilot | null;
+  mapColors: string[]
 }
 
 const PopupContainer = styled(Popup)`
@@ -73,12 +74,12 @@ const pilotRatingMap = {
 };
 
 export default function NavMap(props: INavMapProps) {
-  const { currentPos, pilot, setSelectedPilot, selectedPilot } = props;
+  const { currentPos, pilot, setSelectedPilot, selectedPilot, mapColors } = props;
 
   const map = useMap();
 
   const colorMap = useMemo(() => {
-    return interpolate(['#FF9E00', '#FBFF00', '#19AD0A', '#0D3CDC', '#B00DDC']);
+    return interpolate(mapColors);
   }, []);
 
   const [currentZoom, setCurrentZoom] = useState(map.getZoom());
