@@ -89,8 +89,8 @@ export default function NavMap(props: INavMapProps) {
     }
     const currentPosPoint = map.project(currentPos);
 
-    const scaledTopLeft = point(currentPosPoint.x - 9, currentPosPoint.y + 10.3875);
-    const scaledBottomRight = point(point(currentPosPoint.x + 9, currentPosPoint.y - 10.3875));
+    const scaledTopLeft = point(currentPosPoint.x - 10, currentPosPoint.y + 10);
+    const scaledBottomRight = point(point(currentPosPoint.x + 10, currentPosPoint.y - 10));
 
     const topLeft = map.unproject(scaledTopLeft);
     const bottomRight = map.unproject(scaledBottomRight);
